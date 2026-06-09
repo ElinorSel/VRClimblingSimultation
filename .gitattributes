@@ -120,6 +120,7 @@
 *.ma lfs-file
 *.max lfs-file
 *.mb lfs-file
+*.usbz lfs-file
 
 # Font formats
 *.ttf lfs-file
