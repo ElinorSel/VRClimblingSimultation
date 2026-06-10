@@ -1,1 +1,0 @@
-/Users/oskar_hokkanen/development/VRClimbingExposureSimulator/Library/Bee/artifacts/Android/il2cppOutput/cpp
