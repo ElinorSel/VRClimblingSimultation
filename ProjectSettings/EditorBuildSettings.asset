@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scenes/RedShirt.unity
     guid: b89baffce5690f745848c38127197412
   - enabled: 1
+    path: Assets/Scenes/VerticalTelefonplan.unity
+    guid: 1639d41c1bd27f8448508307b33a8c29
+  - enabled: 0
     path: Assets/Scenes/SpaceTest.unity
     guid: 544f06d68fd0fab4598b92e26480cf80
   m_configObjects:
