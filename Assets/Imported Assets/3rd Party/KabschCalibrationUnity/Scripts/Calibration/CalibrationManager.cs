@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
-//using Valve.VR;
+using UnityEngine.XR;
 
 public class CalibrationManager : MonoBehaviour
 {
@@ -35,6 +35,11 @@ public class CalibrationManager : MonoBehaviour
     private int dummyIndex = 0;
 
     public float calibrationDistanceError = 0;
+
+    // VR controller
+    private InputDevice leftDevice;
+    private bool leftTriggerPrev = false;
+
 
     #region GETTER AND SETTER
 
@@ -92,25 +97,57 @@ public class CalibrationManager : MonoBehaviour
         ChangeColorOfPointer();
 
         // For testing
-        if (Input.GetKeyDown(KeyCode.M))
+       /* if (Input.GetKeyDown(KeyCode.M))
         {
             currentObjectToCalibrate.AddTargetPoint(CreateDummySourcePoint(dummyIndex), targetPointParents[choiceIndex].transform);
             ChangeColorOfPointer();
             dummyIndex++;
         }
-
-        throw new Exception("No input method implemented yet.");
+        */
+        // throw new Exception("No input method implemented yet.");
         
-        /*
-        TODO: Add calibration input here, depending on VR system used - example is for SteamVR 1.0.        
-        if (SteamVR_Input._default.inActions.InteractUI.GetStateDown(SteamVR_Input_Sources.RightHand))
+
+    
+       RefreshLeftDevice();
+
+        if (TriggerRisingEdge(leftDevice, ref leftTriggerPrev))
         {
             currentObjectToCalibrate.AddTargetPoint(tooltip.position, targetPointParents[choiceIndex].transform);
             ChangeColorOfPointer();
         }
-        */
+    
         
     }
+
+    // For VR Controller
+    void RefreshLeftDevice()
+    {
+    if (leftDevice.isValid) return;
+
+    var devices = new List<InputDevice>();
+    InputDevices.GetDevicesWithCharacteristics(
+        InputDeviceCharacteristics.Left | InputDeviceCharacteristics.Controller,
+        devices);
+
+    if (devices.Count > 0)
+        leftDevice = devices[0];
+    }
+
+    bool TriggerRisingEdge(InputDevice device, ref bool prevState)
+    {
+    if (!device.isValid)
+    {
+        prevState = false;
+        return false;
+    }
+
+    device.TryGetFeatureValue(CommonUsages.triggerButton, out bool pressed);
+    bool rising = pressed && !prevState;
+    prevState = pressed;
+    return rising;
+    }
+
+
 
     private Vector3 CreateDummySourcePoint(int number)
     { switch (number % sourcePoints.Length)

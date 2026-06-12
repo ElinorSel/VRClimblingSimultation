@@ -1,8 +1,9 @@
 ﻿using System;
 using UnityEngine;
 using System.Text;
-//using Valve.VR;
+using UnityEngine.XR;
 using Matrix = MathNet.Numerics.LinearAlgebra.Matrix<float>;
+using System.Collections.Generic;
 
 
 //Code taken from https://github.com/anthonysteed/CalibrateTooltip 
@@ -25,6 +26,10 @@ public class CalibrateTooltip : MonoBehaviour
     private bool calibrationActive = false;
     private CalibrationManager calibrationManager;
 
+    // For VR controller
+    private InputDevice leftDevice;
+    private bool leftGripPrev;
+
     void Start()
     {
         calibrationManager = GetComponent<CalibrationManager>();
@@ -32,25 +37,51 @@ public class CalibrateTooltip : MonoBehaviour
 
     void Update()
     {
+        // VR controller
+        refreshInputDevice();
+
         if (calibrationActive)
         {
+            /*
             // input from Keyboard
             if (Input.GetKeyDown(KeyCode.T))
             {
                 AddOne();
             }
-            
-            /*
-            Example to add custom input here, depending on VR system used - example is for SteamVR 1.0 
-            if (SteamVR_Input._default.inActions.InteractUI.GetStateDown(SteamVR_Input_Sources.LeftHand ))
+            */
+            // input from VR, if grip is pressed, add one point
+            if (GripRisingEdge(leftDevice, ref leftGripPrev))
             {
                 AddOne();
             }
-            */
+            
 
         }
     }
 
+    private void refreshInputDevice()
+    {
+        TryRefreshDevice(ref leftDevice,  InputDeviceCharacteristics.Left);
+    }
+
+    static void TryRefreshDevice(ref InputDevice device,
+        InputDeviceCharacteristics side)
+    {
+        if (device.isValid) return;
+        var found = new List<InputDevice>();
+        InputDevices.GetDevicesWithCharacteristics(
+            side | InputDeviceCharacteristics.Controller, found);
+        if (found.Count > 0) device = found[0];
+    }
+
+    static bool GripRisingEdge(InputDevice device, ref bool prevState)
+    {
+        if (!device.isValid) { prevState = false; return false; }
+        device.TryGetFeatureValue(CommonUsages.gripButton, out bool pressed);
+        bool rising = pressed && !prevState;
+        prevState = pressed;
+        return rising;
+    }
     private void AddOne()
     {
         print("set tippoint");
